@@ -1,54 +1,70 @@
-// Wykorzystując bazę danych MongoDB, stwórzmy aplikację typu lista zadań (todo list), wykonaną w podejściu REST API. Aplikacja powinna pozwalać na:
-
-// dodanie nowego dokumentu do naszej bazy w postaci:
-// {
-// 	"task": "naprawić samochód",
-// 	"description": "coś stuka po lewej",
-// 	"isCompleted": false,
-// 	"createdTime": "05-05-2022"
-// }
-// zmodyfikowanie zadania - poprzez określenie czy dane zadanie zostało wykonane
-// {
-// 	"isCompleted": true
-// }
-// usunięcie zadania
-// pobranie wszystkich zadań
-// pobranie pojedynczego zadania
-
 require("dotenv").config();
 
 const express = require("express");
+const mongoose = require("mongoose");
 const status = require("http-status");
+const routes = require("./api/routes");
+// const bodyParser = require("body-parser");
+const Advertisment = require("./models/Advertisment");
 
-const { main, addNewAdvertisment } = require("./db");
-const app = express();
+const uri = process.env.MONGODB_CONNECTION;
 
-app.use(express.json());
-
-main()
+mongoose
+  .connect(
+    uri,
+    {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    },
+    console.log(`DB running on ${uri}`)
+  )
   .then(() => {
-    app.get("/heartbeat", (req, res) => res.send(new Date()));
+    const app = express();
+    app.use(express.json());
+    app.use("/api", routes);
+    // app.post("/advertisments", async (req, res) => {
+    //   // const newTask = req.body;
 
-    app.post("/advertisments", async (req, res) => {
-      const newAdvertisment = req.body;
+    //   // // warto dodać sprawdzenie czy newTask posiada odpowiednie właściwości, gdy nie to zwracać kod 400 bez dodawania do bazy
 
-      // warto dodać sprawdzenie czy newAdvertisment posiada odpowiednie właściwości, gdy nie to zwracać kod 400 bez dodawania do bazy
+    //   // const newAdd = new Advertisment({ ...req.body });
+    //   // const result = await newAdd.save((err, result) => {
+    //   //   if (err) {
+    //   //     res.statusCode = status.INTERNAL_SERVER_ERROR;
+    //   //   } else {
+    //   //     res.statusCode = status.CREATED;
+    //   //   }
+    //   // });
 
-      const result = await addNewAdvertisment(newAdvertisment);
-
-      if (result.insertedCount === 1) {
-        res.statusCode = status.CREATED;
-      } else {
-        res.statusCode = status.INTERNAL_SERVER_ERROR;
-      }
-
-      res.send();
-    });
-  })
-  .finally(() => {
-    app.get("/heartbeat", (req, res) => {
-      res.send(new Date());
-    });
-
+    //   // res.send();
+    // });
     app.listen(process.env.PORT, () => console.log("server started"));
   });
+
+// main()
+//   .then(() => {
+//     app.get("/heartbeat", (req, res) => res.send(new Date()));
+
+//     app.post("/advertisments", async (req, res) => {
+//       const newAdvertisment = req.body;
+//       // console.log(newAdvertisment);
+
+//       // res.json({ requestBody: req.body });
+//       // warto dodać sprawdzenie czy newAdvertisment posiada odpowiednie właściwości, gdy nie to zwracać kod 400 bez dodawania do bazy
+
+//       await addNewAdvertisment(newAdvertisment);
+//       // console.log(result);
+//       // if (result) {
+//       //   res.statusCode = status.CREATED;
+//       // } else {
+//       //   res.statusCode = status.INTERNAL_SERVER_ERROR;
+//       // }
+
+//       res.send();
+//     });
+//   })
+//   .finally(() => {
+//     app.get("/heartbeat", (req, res) => {
+//       res.send(new Date());
+//     });
+//   });

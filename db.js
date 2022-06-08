@@ -75,60 +75,65 @@ const AdvertismentModel = mongoose.model(
 ); // pierwszy parametr to nazwa kolekcji w bazie danych
 
 const main = async () => {
-  try {
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  } catch {
-    (err) => console.log(err);
-  }
+  mongoose.connect(uri, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+  });
+  const dbTest = mongoose.connection;
+  dbTest.on("error", console.error.bind(console, "connection error:"));
 
-  //   newTask.completed = true;
-  //   result = await newTask.save(); // aktualizacja wcześniej zapisanego dokumentu
-  //   console.log(result);
-
-  //   const tasks = await TaskModel.find(); // pobranie wszystkich dokumentów z kolekcji
-  //   tasks.forEach((task) => {
-  //     console.table(task);
-  //   });
-
-  //   await TaskModel.deleteMany({ completed: "true" }); // usunięcie z bazy wszystkich dokumentów z właściwością completed = true
+  dbTest.once("open", function () {
+    console.log("Connection Successful!");
+  });
 };
 
-const addNewAdvertisment = async () => {
-  try {
-    const newAdvertisment = new AdvertismentModel({
-      title: "Lorem ipsum",
-      description: "Lorem ipsum",
-      completed: false,
-      createdTime: new Date(),
-      category: "clothing",
-      labels: ["test", "2022"],
-      price: 24,
-      owner: {
-        phoneNumber: "+48 673 329 233",
-        createdTime: new Date(),
-        lastActivity: new Date(),
-        valuation: 89,
-        email: "halo@halo.pl",
-      },
-      comments: ["great"],
-      location: {
-        address: "Brukowa 4",
-        geo: {
-          lat: 98,
-          lng: 67,
-        },
-      },
-      display: 980,
-      valuation: 100,
-    });
+//   newTask.completed = true;
+//   result = await newTask.save(); // aktualizacja wcześniej zapisanego dokumentu
+//   console.log(result);
 
-    let result = await newAdvertisment.save(); // zapis do bazy nowego dokumentu
-    console.log(result);
+//   const tasks = await TaskModel.find(); // pobranie wszystkich dokumentów z kolekcji
+//   tasks.forEach((task) => {
+//     console.table(task);
+//   });
+
+//   await TaskModel.deleteMany({ completed: "true" }); // usunięcie z bazy wszystkich dokumentów z właściwością completed = true
+
+const addNewAdvertisment = async (newAdvertisment) => {
+  try {
+    // const newAdvertisment = new AdvertismentModel({
+    //   title: "Lorem ipsum",
+    //   description: "Lorem ipsum",
+    //   completed: false,
+    //   createdTime: new Date(),
+    //   category: "clothing",
+    //   labels: ["test", "2022"],
+    //   price: 24,
+    //   owner: {
+    //     phoneNumber: "+48 673 329 233",
+    //     createdTime: new Date(),
+    //     lastActivity: new Date(),
+    //     valuation: 89,
+    //     email: "halo@halo.pl",
+    //   },
+    //   comments: ["great"],
+    //   location: {
+    //     address: "Brukowa 4",
+    //     geo: {
+    //       lat: 98,
+    //       lng: 67,
+    //     },
+    //   },
+    //   display: 980,
+    //   valuation: 100,
+    // });
+    // const newAdd = new AdvertismentSchema({ ...newAdvertisment });
+    let result = await newAdvertisment.save((err, data) => {
+      if (err) throw err;
+      res.json(data);
+    }); // zapis do bazy nowego dokumentu
+    console.log(result + "WYNIK!!!!!");
   } catch {
-    (err) => console.log(err);
+    (err) => console.log(err + "COŚ NIE DZIAŁA");
   }
 };
 module.exports = {
