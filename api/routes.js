@@ -12,10 +12,9 @@ router.post("/advertisments", async (req, res) => {
       res.statusCode = status.INTERNAL_SERVER_ERROR;
     } else {
       res.statusCode = status.CREATED;
+      res.send(result);
     }
   });
-
-  res.send(result);
 });
 
 //heartbeat
@@ -67,6 +66,34 @@ router.patch("/advertisments/:id", async (req, res) => {
     await Advertisment.findByIdAndUpdate(req.params.id, req.body, {
       upsert: true,
     });
+    res.statusCode = status.NO_CONTENT;
+    res.send();
+  } catch {
+    res.statusCode = status.INTERNAL_SERVER_ERROR;
+    res.send();
+  }
+});
+
+router.get("/advertisment", async (req, res) => {
+  try {
+    if (!req.query) {
+      res.statusCode = status.UNPROCESSABLE_ENTITY;
+      res.send({ error: "Required query params missing" });
+    }
+    if (req.query.title) {
+      console.log(req.query.title);
+      const advertisments = await Advertisment.find({
+        title: req.query.title,
+      });
+
+      if (advertisments.length > 0) {
+        res.status(200).send(advertisments);
+      } else {
+        return res
+          .status(404)
+          .send({ error: "Advertisments with this title don't exist!" });
+      }
+    }
     res.statusCode = status.NO_CONTENT;
     res.send();
   } catch {

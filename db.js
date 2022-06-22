@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const uri = process.env.MONGODB_CONNECTION;
 
-// definicja schematu kolecji bazodanowej
+// definicja schematu kolekcji bazodanowej
 const AdvertismentSchema = new mongoose.Schema(
   {
     title: String,
