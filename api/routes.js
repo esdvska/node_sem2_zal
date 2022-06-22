@@ -3,9 +3,9 @@ const router = express.Router();
 const Advertisment = require("../models/Advertisment");
 const status = require("http-status");
 const _ = require("lodash");
-router.post("/advertisments", async (req, res) => {
-  // console.log(req.body);
 
+//dodawanie ogłoszenia
+router.post("/advertisments", async (req, res) => {
   const newAdd = new Advertisment({ ...req.body });
   const result = await newAdd.save((err, result) => {
     if (err) {
@@ -15,24 +15,27 @@ router.post("/advertisments", async (req, res) => {
     }
   });
 
-  res.send();
+  res.send(result);
 });
 
+//heartbeat
 router.get("/heartbeat", (req, res) => res.send(new Date()));
 
+//wyszukiwanie wszystkich ogloszeń
 router.get("/advertisments", async (req, res) => {
   const adds = await Advertisment.find();
   res.send(adds);
 });
 
+//wyszukiwanie ogłoszenia po id
 router.get("/advertisments/:id", async (req, res) => {
   try {
     const advertisment = await Advertisment.findOne({ _id: req.params.id });
-    console.log(advertisment + "hekj");
+
     if (advertisment) {
       res.status(200).send(advertisment);
     } else {
-      res.status(204).send("Advertisment doesn't exist!");
+      return res.status(404).send({ error: "Advertisment doesn't exist!" });
     }
   } catch {
     res.statusCode = status.INTERNAL_SERVER_ERROR;
@@ -40,6 +43,7 @@ router.get("/advertisments/:id", async (req, res) => {
   }
 });
 
+//usuwanie ogłoszenia
 router.delete("/advertisments/:id", async (req, res) => {
   try {
     const advertisment = await Advertisment.findOne({ _id: req.params.id });
@@ -56,25 +60,18 @@ router.delete("/advertisments/:id", async (req, res) => {
   }
 });
 
+//aktualizacja ogłoszenia
 router.patch("/advertisments/:id", async (req, res) => {
   try {
-    const advertisment = await Advertisment.findOne({ _id: req.params.id });
-
-    console.log(_.difference(req.body, advertisment));
-    // if (req.body.title) {
-    //   advertisment.title = req.body.title;
-    // }
-
-    // if (req.body.content) {
-    //   advertisment.content = req.body.content;
-    // }
-
-    // await advertisment.save();
-    // res.send(advertisment);
+    // const advertisment = await Advertisment.findOne({ _id: req.params.id });
+    await Advertisment.findByIdAndUpdate(req.params.id, req.body, {
+      upsert: true,
+    });
+    res.statusCode = status.NO_CONTENT;
+    res.send();
   } catch {
     res.statusCode = status.INTERNAL_SERVER_ERROR;
     res.send();
-    console.log(res);
   }
 });
 module.exports = router;
