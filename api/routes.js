@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Advertisment = require("../models/Advertisment");
+const UserModel = require("../models/UserModel");
 const status = require("http-status");
 const _ = require("lodash");
 
@@ -26,6 +27,15 @@ router.get("/advertisments", async (req, res) => {
   res.send(adds);
 });
 
+router.get("/users", async (req, res) => {
+  const users = await UserModel.find();
+  res.send(users);
+});
+
+router.delete("/users", async (req, res) => {
+  const users = await UserModel.deleteMany({ haslo: "haslo1" });
+  res.send(users);
+});
 //wyszukiwanie ogłoszenia po id
 router.get("/advertisments/:id", async (req, res) => {
   try {
@@ -79,23 +89,88 @@ router.get("/advertisment", async (req, res) => {
     if (!req.query) {
       res.statusCode = status.UNPROCESSABLE_ENTITY;
       res.send({ error: "Required query params missing" });
-    }
-    if (req.query.title) {
-      console.log(req.query.title);
-      const advertisments = await Advertisment.find({
-        title: req.query.title,
-      });
+    } else {
+      const advertisments = [];
 
+      const {
+        title,
+        description,
+        createdFrom,
+        createdTo,
+        priceFrom,
+        priceTo,
+        ownerName,
+      } = req.query;
+      if (title) {
+        advertisments.push(
+          await Advertisment.find({
+            title: { $regex: "^" + title, $options: "i" },
+          })
+        );
+      }
+
+      if (description) {
+        advertisments.push(
+          await Advertisment.find({
+            description: { $regex: "^" + description, $options: "i" },
+          })
+        );
+      }
+
+      if (ownerName) {
+        advertisments.push(
+          await Advertisment.find({
+            "owner.name": { $regex: "^" + ownerName, $options: "i" },
+          })
+        );
+      }
+      if (createdFrom && createdTo) {
+        let datePattern = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+
+        if (datePattern.test(createdFrom) && datePattern.test(createdTo)) {
+          advertisments.push(
+            await Advertisment.find({
+              createdTime: {
+                $gte: `${createdFrom}T00:00:00.978Z`,
+                $lt: `${createdTo}T23:59:59.978Z`,
+              },
+            })
+          );
+        } else {
+          res.statusCode = status.UNPROCESSABLE_ENTITY;
+          res.send({
+            error:
+              "Wrong date format,date parameter should be in this format: YYYY/MM/DD",
+          });
+        }
+      }
+
+      if (priceFrom && priceTo) {
+        console.log(parseFloat(priceTo));
+        if (!isNaN(parseFloat(priceFrom)) && !isNaN(parseFloat(priceTo))) {
+          advertisments.push(
+            await Advertisment.find({
+              price: {
+                $gte: priceFrom,
+                $lt: priceTo,
+              },
+            })
+          );
+        } else {
+          res.statusCode = status.UNPROCESSABLE_ENTITY;
+          res.send({
+            error: "Price should be of type number",
+          });
+        }
+      }
       if (advertisments.length > 0) {
         res.status(200).send(advertisments);
       } else {
         return res
           .status(404)
-          .send({ error: "Advertisments with this title don't exist!" });
+          .send({ error: "Advertisments with this criteria don't exist." });
       }
     }
-    res.statusCode = status.NO_CONTENT;
-    res.send();
   } catch {
     res.statusCode = status.INTERNAL_SERVER_ERROR;
     res.send();
