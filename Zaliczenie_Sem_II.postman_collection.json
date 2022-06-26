@@ -1,0 +1,248 @@
+{
+	"info": {
+		"_postman_id": "81c23f6a-d830-402e-9d01-6bf89499afb4",
+		"name": "Zaliczenie_Sem_II",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "02_heartbeat",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/heartbeat",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"heartbeat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03_add_advertisment",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"title\":\"Fajowe Testowe z Userem\",\n   \"description\":\"Lorem ipsum\",\n   \"completed\":true,\n   \"category\":\"clothing\",\n   \"labels\":[\n      \"test\",\n      \"2022\"\n   ],\n   \"price\":24,\n   \"owner\":{\n      \"name\":\"Coala\",\n      \"phoneNumber\":\"+48 673 329 233\",\n      \"valuation\":89,\n      \"email\":\"admin1@o2.pl\"\n   },\n   \"comments\":[\n      \"great\"\n   ],\n   \"location\":{\n      \"address\":\"Brukowa 4\",\n      \"geo\":{\n         \"lat\":98,\n         \"lng\":67\n      }\n   },\n   \"display\":98,\n   \"valuation\":100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/advertisments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"advertisments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04_find_advertisments",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/advertisments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"advertisments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04_find_advertisment_by_id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/advertisments/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"advertisments",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "62a0dba5149f0d8d0cb674fa"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07_find_with_criteria",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/advertisment?ownerName=Coala&=",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"advertisment"
+					],
+					"query": [
+						{
+							"key": "ownerName",
+							"value": "Coala"
+						},
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05_delete_advertisment",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"password\": \"haslo1\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/advertisments/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"advertisments",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "62a0ccbfd366fbb6dcd171bb"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06_patch_advertisment",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"password\":\"haslo1\",\n\n    \"advert\": {\n        \"title\":\"Lorem ipsumem\",\n        \"description\":\"Lorum\",\n        \"completed\":true,\n        \"category\":\"healthy\",\n        \"labels\":[\n            \"test\",\n            \"2022\"\n        ],\n        \"price\":14,\n        \"owner\":{\n            \"name\":\"linaCja\",\n            \"phoneNumber\":\"+48 890 7568 000\",\n            \"valuation\": 9,\n            \"email\":\"admin1@o2.pl\"\n        },\n        \"comments\":[\n            \"great\", \"not so good\"\n        ],\n        \"location\":{\n            \"address\":\"Brukowa 6\",\n            \"geo\":{\n                \"lat\":89,\n                \"lng\":67\n            }\n        },\n        \"display\":98,\n        \"valuation\":10\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}:{{port}}/api/advertisments/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"advertisments",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "62b86d590269bd301dc1dca1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
