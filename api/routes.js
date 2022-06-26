@@ -27,15 +27,6 @@ router.get("/advertisments", async (req, res) => {
   res.send(adds);
 });
 
-router.get("/users", async (req, res) => {
-  const users = await UserModel.find();
-  res.send(users);
-});
-
-router.delete("/users", async (req, res) => {
-  const users = await UserModel.deleteMany({ haslo: "haslo1" });
-  res.send(users);
-});
 //wyszukiwanie ogłoszenia po id
 router.get("/advertisments/:id", async (req, res) => {
   try {
@@ -55,13 +46,19 @@ router.get("/advertisments/:id", async (req, res) => {
 //usuwanie ogłoszenia
 router.delete("/advertisments/:id", async (req, res) => {
   try {
-    const advertisment = await Advertisment.findOne({ _id: req.params.id });
-    if (advertisment) {
-      await Advertisment.deleteOne({ _id: req.params.id });
-      res.status(204).send();
+    const user = await UserModel.findOne({ password: req.body.password });
+    if (user) {
+      const advertisment = await Advertisment.findOne({ _id: req.params.id });
+      if (advertisment) {
+        await Advertisment.deleteOne({ _id: req.params.id });
+        res.status(204).send();
+      } else {
+        res.status(404);
+        res.send({ error: "Advertisment doesn't exist!" });
+      }
     } else {
-      res.status(404);
-      res.send({ error: "Advertisment doesn't exist!" });
+      res.statusCode = status.UNAUTHORIZED;
+      res.send();
     }
   } catch {
     res.statusCode = status.INTERNAL_SERVER_ERROR;
@@ -69,15 +66,72 @@ router.delete("/advertisments/:id", async (req, res) => {
   }
 });
 
-//aktualizacja ogłoszenia
+//aktualizacja ogłoszenia z autoryzacja hasłem
+// router.patch("/advertisments/:id", async (req, res) => {
+//   try {
+//     UserModel.findOne({ password: req.body.password }).then((user) => {
+//       if (user) {
+//         if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+//           Advertisment.findByIdAndUpdate(req.params.id, req.body.advert).then(
+//             (err, advert) => {
+//               if (advert) {
+//                 res.statusCode = status.OK;
+
+//                 res.send(advert);
+//               } else {
+//                 res.statusCode = status.NOT_FOUND;
+
+//                 res.send({ error: "Record not found" });
+//               }
+//             }
+//           );
+//         } else {
+//           res.statusCode = status.UNPROCESSABLE_ENTITY;
+//           res.send({ error: "Wrong ObjectId" });
+//         }
+//       } else {
+//         res.statusCode = status.UNAUTHORIZED;
+//         res.send();
+//       }
+//     });
+//   } catch {
+//     res.statusCode = status.INTERNAL_SERVER_ERROR;
+//     res.send();
+//   }
+// });
+
+// aktualizacja ogłoszenia z autoryzacja hasłem i sprawdzeniem czy jest to ogłoszenie dodane przed danego uytkownika
 router.patch("/advertisments/:id", async (req, res) => {
   try {
-    // const advertisment = await Advertisment.findOne({ _id: req.params.id });
-    await Advertisment.findByIdAndUpdate(req.params.id, req.body, {
-      upsert: true,
-    });
-    res.statusCode = status.NO_CONTENT;
-    res.send();
+    const user = await UserModel.findOne({ password: req.body.password });
+    const checkId = req.params.id.match(/^[0-9a-fA-F]{24}$/);
+    if (user) {
+      if (checkId) {
+        const advert = await Advertisment.findById(req.params.id);
+        if (advert) {
+          if (advert.owner.email === user.email) {
+            const updatedAdvert = await Advertisment.findByIdAndUpdate(
+              req.params.id,
+              req.body.advert
+            );
+            res.statusCode = status.OK;
+            res.send();
+          } else {
+            res.statusCode = status.UNAUTHORIZED;
+            res.send({ error: "This is not Your advert" });
+          }
+        } else {
+          res.statusCode = status.NOT_FOUND;
+          res.send({ error: "Record not found" });
+        }
+      } else {
+        res.statusCode = status.UNPROCESSABLE_ENTITY;
+        res.send({ error: "Wrong ObjectId" });
+      }
+    } else {
+      res.statusCode = status.UNAUTHORIZED;
+      res.send();
+    }
   } catch {
     res.statusCode = status.INTERNAL_SERVER_ERROR;
     res.send();
